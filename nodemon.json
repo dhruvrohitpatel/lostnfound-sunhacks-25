@@ -1,0 +1,18 @@
+{
+  "watch": [
+    "*.py",
+    "*.db",
+    "requirements.txt"
+  ],
+  "ext": "py,db,txt",
+  "ignore": [
+    "node_modules",
+    "__pycache__",
+    "*.pyc",
+    ".git"
+  ],
+  "exec": "uvicorn main:app --reload --host 0.0.0.0 --port 8000",
+  "env": {
+    "NODE_ENV": "development"
+  }
+}
