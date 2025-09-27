@@ -31,3 +31,19 @@ class FoundItemOut(FoundItemBase):
     timestamp: datetime
     class Config:
         orm_mode = True
+
+class SubmissionBase(BaseModel):
+    text: str
+    name: Optional[str] = "Anonymous"
+    image_path: Optional[str] = None
+    image_filename: Optional[str] = None
+    image_size: Optional[int] = None
+
+class SubmissionCreate(SubmissionBase):
+    pass
+
+class SubmissionOut(SubmissionBase):
+    id: int
+    timestamp: datetime
+    class Config:
+        orm_mode = True

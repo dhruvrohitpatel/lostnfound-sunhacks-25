@@ -27,8 +27,14 @@ def get_db():
 
 @app.get("/", response_class=HTMLResponse)
 def root():
-    """Serve the main web interface"""
-    with open("static/index.html", "r") as f:
+    """Serve the gallery page"""
+    with open("static/gallery.html", "r") as f:
+        return HTMLResponse(content=f.read(), status_code=200)
+
+@app.get("/report", response_class=HTMLResponse)
+def report():
+    """Serve the report page"""
+    with open("static/report.html", "r") as f:
         return HTMLResponse(content=f.read(), status_code=200)
 
 @app.get("/api/health")
@@ -57,7 +63,8 @@ async def submit_content(
     text: str = Form(""),
     name: str = Form(""),
     image: UploadFile = File(None),
-    timestamp: str = Form("")
+    timestamp: str = Form(""),
+    db: Session = Depends(get_db)
 ):
     """Submit user content with image and text"""
     try:
@@ -94,8 +101,16 @@ async def submit_content(
             response_data["image_filename"] = image.filename
             response_data["image_size"] = len(content)
         
-        # Here you could save to database if needed
-        # For now, we'll just return the data
+        # Save to database
+        submission_data = schemas.SubmissionCreate(
+            text=response_data["text"],
+            name=response_data["name"],
+            image_path=response_data["image_url"],
+            image_filename=response_data.get("image_filename"),
+            image_size=response_data.get("image_size")
+        )
+        
+        db_submission = crud.create_submission(db, submission_data)
         
         return {
             "success": True,
@@ -107,11 +122,10 @@ async def submit_content(
         raise HTTPException(status_code=500, detail=f"Error processing submission: {str(e)}")
 
 @app.get("/api/submissions")
-def get_submissions():
-    """Get all submissions (for admin purposes)"""
-    # This would typically fetch from database
-    # For now, return empty list
-    return {"submissions": []}
+def get_submissions(db: Session = Depends(get_db)):
+    """Get all submissions"""
+    submissions = crud.get_submissions(db)
+    return {"submissions": submissions}
 
 # Serve uploaded images
 @app.get("/uploads/{filename}")
