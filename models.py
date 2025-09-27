@@ -25,6 +25,7 @@ class Submission(Base):
     id = Column(Integer, primary_key=True, index=True)
     text = Column(Text)
     name = Column(String, default="Anonymous")
+    contact = Column(String, nullable=True)
     image_path = Column(String, nullable=True)
     image_filename = Column(String, nullable=True)
     image_size = Column(Integer, nullable=True)

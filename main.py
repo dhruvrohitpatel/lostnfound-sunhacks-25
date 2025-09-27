@@ -62,6 +62,7 @@ def list_found(db: Session = Depends(get_db)):
 async def submit_content(
     text: str = Form(""),
     name: str = Form(""),
+    contact: str = Form(""),
     image: UploadFile = File(None),
     timestamp: str = Form(""),
     db: Session = Depends(get_db)
@@ -77,6 +78,7 @@ async def submit_content(
             "id": str(uuid.uuid4()),
             "text": text.strip(),
             "name": name.strip() if name else "Anonymous",
+            "contact": contact.strip() if contact else None,
             "timestamp": timestamp or datetime.now().isoformat(),
             "image_url": None
         }
@@ -105,6 +107,7 @@ async def submit_content(
         submission_data = schemas.SubmissionCreate(
             text=response_data["text"],
             name=response_data["name"],
+            contact=response_data["contact"],
             image_path=response_data["image_url"],
             image_filename=response_data.get("image_filename"),
             image_size=response_data.get("image_size")

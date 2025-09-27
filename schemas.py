@@ -35,6 +35,7 @@ class FoundItemOut(FoundItemBase):
 class SubmissionBase(BaseModel):
     text: str
     name: Optional[str] = "Anonymous"
+    contact: Optional[str] = None
     image_path: Optional[str] = None
     image_filename: Optional[str] = None
     image_size: Optional[int] = None
