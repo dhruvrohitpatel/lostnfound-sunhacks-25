@@ -9,6 +9,7 @@ Built at SunHacks 2025 🚀
 - Report **lost items** with description + location
 - Report **found items**
 - Retrieve all lost/found items
+- **AI-Powered Search** using ChatGPT for intelligent item matching
 - SQLite database (file-based, no setup needed)
 - Auto-generated API docs at `/docs`
 
@@ -22,14 +23,25 @@ git clone https://github.com/dhruvrohitpatel/lostfound-sunhacks-25.git
 cd lostfound-sunhacks-25
 ```
 
-### 2. Quick Start (Recommended)
+### 2. Set up OpenAI API Key (Required for AI Search)
+```bash
+# Set your OpenAI API key as an environment variable
+export OPENAI_API_KEY="your_openai_api_key_here"
+
+# Or create a .env file in the project root:
+echo "OPENAI_API_KEY=your_openai_api_key_here" > .env
+```
+
+**Get your API key from:** https://platform.openai.com/api-keys
+
+### 3. Quick Start (Recommended)
 ```bash
 # Install all dependencies and start development server
 npm run setup
 npm run dev
 ```
 
-### 3. Manual Setup
+### 4. Manual Setup
 ```bash
 # Install Python dependencies
 pip3 install -r requirements.txt

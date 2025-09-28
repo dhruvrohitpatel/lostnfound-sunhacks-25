@@ -4,9 +4,11 @@ from fastapi.responses import HTMLResponse
 from sqlalchemy.orm import Session
 import models, schemas, crud
 from database import SessionLocal, engine
+from ai_search import ai_search_service
 import os
 import uuid
 from datetime import datetime
+from typing import List
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -30,6 +32,7 @@ def root():
     """Serve the gallery page"""
     with open("static/gallery.html", "r") as f:
         return HTMLResponse(content=f.read(), status_code=200)
+
 
 @app.get("/report", response_class=HTMLResponse)
 def report():
@@ -129,6 +132,47 @@ def get_submissions(db: Session = Depends(get_db)):
     """Get all submissions"""
     submissions = crud.get_submissions(db)
     return {"submissions": submissions}
+
+@app.post("/api/search")
+def search_submissions(
+    query: str = Form(...),
+    threshold: float = Form(0.2),
+    db: Session = Depends(get_db)
+):
+    """Search submissions using AI-powered semantic search"""
+    try:
+        # Get all submissions
+        submissions = crud.get_submissions(db)
+        
+        # Convert to list of dicts for AI processing
+        submissions_data = []
+        for submission in submissions:
+            submissions_data.append({
+                "id": submission.id,
+                "text": submission.text,
+                "name": submission.name,
+                "contact": submission.contact,
+                "image_path": submission.image_path,
+                "image_filename": submission.image_filename,
+                "timestamp": submission.timestamp.isoformat() if submission.timestamp else None
+            })
+        
+        # Perform AI search
+        search_results = ai_search_service.search_submissions(submissions_data, query, threshold)
+        
+        # Generate suggestions
+        suggestions = ai_search_service.generate_search_suggestions(query, len(search_results))
+        
+        return {
+            "success": True,
+            "query": query,
+            "results": search_results,
+            "total_matches": len(search_results),
+            "suggestions": suggestions
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Search failed: {str(e)}")
 
 # Serve uploaded images
 @app.get("/uploads/{filename}")
