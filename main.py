@@ -4,7 +4,6 @@ from fastapi.responses import HTMLResponse
 from sqlalchemy.orm import Session
 import models, schemas, crud
 from database import SessionLocal, engine
-from ai_search import ai_search_service
 import os
 import uuid
 from datetime import datetime
@@ -131,52 +130,6 @@ def get_submissions(db: Session = Depends(get_db)):
     submissions = crud.get_submissions(db)
     return {"submissions": submissions}
 
-@app.post("/api/search")
-def search_submissions(
-    query: str = Form(...),
-    threshold: float = Form(0.2),
-    db: Session = Depends(get_db)
-):
-    """Search submissions using AI-powered semantic search"""
-    try:
-        # Get all submissions
-        submissions = crud.get_submissions(db)
-        
-        # Convert to dict format for AI search
-        submissions_data = []
-        for submission in submissions:
-            submissions_data.append({
-                "id": submission.id,
-                "text": submission.text,
-                "name": submission.name,
-                "contact": submission.contact,
-                "image_path": submission.image_path,
-                "image_filename": submission.image_filename,
-                "created_at": submission.created_at.isoformat() if submission.created_at else None
-            })
-        
-        # Perform AI search
-        results = ai_search_service.search_submissions(submissions_data, query, threshold)
-        
-        # Generate suggestions
-        suggestions = ai_search_service.generate_search_suggestions(query, len(results))
-        
-        return {
-            "success": True,
-            "query": query,
-            "results": results,
-            "total_found": len(results),
-            "suggestions": suggestions
-        }
-        
-    except Exception as e:
-        return {
-            "success": False,
-            "error": f"Search failed: {str(e)}",
-            "results": [],
-            "total_found": 0,
-            "suggestions": []
-        }
 
 # Serve uploaded images
 @app.get("/uploads/{filename}")
